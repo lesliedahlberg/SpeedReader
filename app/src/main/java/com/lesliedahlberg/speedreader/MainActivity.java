@@ -1,32 +1,45 @@
 package com.lesliedahlberg.speedreader;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     Handler mHandler;
-    int interval = 1000;
+    int wpm = 100;
+    boolean playing = false;
 
     int FILE_REQUEST = 1;
-    String dummyText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eleifend nec erat eu dictum. Praesent ac vulputate nisi. Integer volutpat, lacus id placerat dignissim, nisi magna vulputate ligula, sit amet dignissim dui nunc non arcu. Vivamus facilisis vel arcu vitae dictum. Praesent sagittis, diam a varius ultrices, turpis felis dapibus ipsum, a congue ex nulla nec arcu. Proin at lorem non quam luctus sollicitudin eu id lectus. Aenean feugiat lacus quis eros feugiat, vel faucibus nunc posuere. Praesent est quam, efficitur eu condimentum eget, consequat ut nunc. Morbi aliquam nec enim at tincidunt. Quisque lorem mauris, tristique ut odio non, elementum rutrum nunc. Praesent fermentum erat sit amet sapien aliquam consequat id in nunc. Nulla ultrices molestie pellentesque. Suspendisse in risus viverra, rutrum ipsum vel, aliquam nunc.";
-
+    String dummyText = "Lorem ipsum dolor sit amet.";
     Document document;
-    TextView wordView, prevWord, nextWord;
-    Spinner spinner;
+    TextView wordView, prevWord, nextWord, wpmView;
+    ImageButton playButton;
+    SeekBar seekBar;
 
 
 
@@ -36,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 next(null);
             }finally {
-                mHandler.postDelayed(mAutoNextWord, interval);
+                mHandler.postDelayed(mAutoNextWord, WPMToMilliseconds(wpm));
             }
         }
     };
@@ -45,25 +58,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return 60000/wpm;
     }
 
+    private void OpenFile(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, FILE_REQUEST);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(intent, FILE_REQUEST);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+        OpenFile();
 
         mHandler = new Handler();
-
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(this);
+        playButton = (ImageButton) findViewById(R.id.buttonPlay);
         document = new Document(dummyText);
         wordView = (TextView) findViewById(R.id.wordView);
-        nextWord = (TextView) findViewById(R.id.nextWord);
-        prevWord = (TextView) findViewById(R.id.prevWord);
+        wpmView = (TextView) findViewById(R.id.wpmView);
         updateTextView();
-        spinner = (Spinner) findViewById(R.id.spinnerSpeeds);
-        spinner.setOnItemSelectedListener(this);
+        updateWPMView();
     }
 
     @Override
@@ -75,10 +95,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     uri = data.getData();
                     try {
                         document.load(readTextFromUri(uri));
-                        updateTextView();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    updateTextView();
+                    seekBar.setMax(document.getWordCount());
 
                 }
             }
@@ -91,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
+            stringBuilder.append("\n");
             stringBuilder.append(line);
         }
         inputStream.close();
@@ -99,9 +121,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     private void updateTextView(){
-        prevWord.setText(document.prev());
+
         wordView.setText(document.current());
-        nextWord.setText(document.next());
+        seekBar.setProgress(document.getPosition());
     }
 
     public void next(View view){
@@ -109,9 +131,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         updateTextView();
     }
 
-    public void previous(View view){
+    public void prev(View view){
         document.movePrev();
         updateTextView();
+    }
+
+
+
+    public void play(View view){
+        if(playing){
+            stop(null);
+            playButton.setBackgroundResource(R.drawable.ic_play_circle_filled_black_24dp);
+        }else{
+            start(null);
+            playButton.setBackgroundResource(R.drawable.ic_pause_circle_filled_black_24dp);
+        }
+        playing = !playing;
     }
 
     public void start(View view){
@@ -122,14 +157,55 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mHandler.removeCallbacks(mAutoNextWord);
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        interval = WPMToMilliseconds(Integer.valueOf(spinner.getSelectedItem().toString()));
+
+    public void faster(View view){
+        wpm+=100;
+        updateWPMView();
+    }
+
+    public void slower(View view){
+        if(wpm >= 100){
+            wpm-=100;
+            updateWPMView();
+        }
+    }
+
+    private void updateWPMView(){
+        wpmView.setText(String.valueOf(wpm));
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_open:
+                OpenFile();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        document.setPosition(progress);
+        updateTextView();
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
 }

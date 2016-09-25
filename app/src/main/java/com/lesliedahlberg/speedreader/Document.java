@@ -30,12 +30,21 @@ public class Document {
 
     public void load(String text){
         this.text = text;
-        String[] words_array = this.text.split("\\W+");
+        String[] words_array = this.text.split("\\s+");
         words = new ArrayList<>(Arrays.asList(words_array));
+        position = 0;
     }
 
     public Document(String text){
         load(text);
+    }
+
+    public int getWordCount(){
+        return words.size()-1;
+    }
+
+    public int getPosition(){
+        return position;
     }
 
     public String current(){
@@ -60,4 +69,7 @@ public class Document {
         return words.get(prevPosition());
     }
 
+    public void setPosition(int position) {
+        this.position = position;
+    }
 }

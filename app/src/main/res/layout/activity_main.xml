@@ -1,127 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.lesliedahlberg.speedreader.MainActivity"
-    android:padding="10dp">
+    tools:context="com.lesliedahlberg.speedreader.MainActivity">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="70"
-        android:layout_gravity="center">
+        android:layout_weight="1"
+        android:background="@color/colorPrimaryDark">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/prevWord"
-                android:padding="10dp"
-                android:layout_gravity="center" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/wordView"
-                android:padding="10dp"
-                android:background="@color/colorAccent"
-                android:textColor="@color/primary_text_default_material_dark"
-                android:layout_gravity="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/nextWord"
-                android:padding="10dp"
-                android:layout_gravity="center" />
-
-        </LinearLayout>
-
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/wordView"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_gravity="center"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:background="@color/primary_light"
+            android:padding="15dp" />
     </FrameLayout>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:background="@color/colorAccent"
+        android:padding="10dp">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start"
-            android:id="@+id/buttonStart"
-            android:onClick="start"
-            android:layout_weight="0.5" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop"
-            android:id="@+id/buttonStop"
-            android:onClick="stop"
-            android:layout_weight="0.5" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Previous"
-            android:id="@+id/buttonPrevious"
-            android:onClick="previous"
-            android:layout_weight="0.5" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Next"
-            android:id="@+id/buttonNext"
-            android:onClick="next"
-            android:nestedScrollingEnabled="false"
-            android:layout_weight="0.5" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="WPM"
-            android:id="@+id/textView"
-            android:layout_gravity="center" />
-
-        <Spinner
+        <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerSpeeds"
-            android:spinnerMode="dropdown"
-            android:entries="@array/spinnerSpeeds"
-            android:padding="10dp" />
+            android:id="@+id/seekBar"
+            android:indeterminate="false"
+            android:splitTrack="false" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:id="@+id/buttonPrev"
+                android:layout_gravity="center"
+                android:onClick="prev"
+                android:cropToPadding="false"
+                android:background="@drawable/ic_fast_rewind_black_24dp"
+                android:backgroundTint="@color/primary_light"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:id="@+id/buttonPlay"
+                android:layout_gravity="center"
+                android:onClick="play"
+                android:cropToPadding="false"
+                android:background="@drawable/ic_play_circle_filled_black_24dp"
+                android:backgroundTint="@color/primary_light"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:id="@+id/buttonNext"
+                android:layout_gravity="center"
+                android:onClick="next"
+                android:cropToPadding="false"
+                android:background="@drawable/ic_fast_forward_black_24dp"
+                android:backgroundTint="@color/primary_light"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center">
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:id="@+id/imageButton"
+                android:layout_gravity="center"
+                android:onClick="slower"
+                android:cropToPadding="false"
+                android:background="@drawable/ic_arrow_drop_down_black_24dp"
+                android:backgroundTint="@color/primary_light" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="WPM"
+                android:id="@+id/wpmView"
+                android:layout_gravity="center"
+                android:textColor="@color/primary_light" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="wpm"
+                android:id="@+id/textView"
+                android:layout_gravity="center"
+                android:textColor="@color/primary_light" />
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:id="@+id/imageButton2"
+                android:layout_gravity="center"
+                android:onClick="faster"
+                android:cropToPadding="false"
+                android:background="@drawable/ic_arrow_drop_up_black_24dp"
+                android:backgroundTint="@color/primary_light" />
+        </LinearLayout>
 
     </LinearLayout>
 
