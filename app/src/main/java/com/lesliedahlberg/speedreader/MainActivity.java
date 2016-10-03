@@ -1,29 +1,19 @@
 package com.lesliedahlberg.speedreader;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
-
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,15 +23,12 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     Handler mHandler;
     int wpm = 100;
     boolean playing = false;
-
     int FILE_REQUEST = 1;
-    String dummyText = "Lorem ipsum dolor sit amet.";
+    String dummyText = "Welcome to Speed Reader.";
     Document document;
-    TextView wordView, prevWord, nextWord, wpmView;
+    TextView wordView, wpmView;
     ImageButton playButton;
     SeekBar seekBar;
-
-
 
     Runnable mAutoNextWord = new Runnable() {
         @Override
@@ -73,17 +60,24 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        OpenFile();
 
         mHandler = new Handler();
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(this);
+
         playButton = (ImageButton) findViewById(R.id.buttonPlay);
         document = new Document(dummyText);
+
         wordView = (TextView) findViewById(R.id.wordView);
         wpmView = (TextView) findViewById(R.id.wpmView);
         updateTextView();
         updateWPMView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        seekBar.setMax(document.getWordCount());
     }
 
     @Override
